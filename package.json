@@ -7,6 +7,7 @@
   "scripts": {
     "seed-data": "keystone-next --seed-data",
     "dev": "keystone-next dev",
+    "heroku-postbuild": "keystone-next postinstall",
     "build": "keystone-next build",
     "start": "keystone-next start"
   },
