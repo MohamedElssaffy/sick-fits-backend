@@ -5,8 +5,11 @@
   "author": "Mohamed gamal",
   "license": "MIT",
   "scripts": {
-    "dev": "keystone-next",
-    "seed-data": "keystone-next --seed-data"
+    "seed-data": "keystone-next --seed-data",
+    "dev": "keystone-next dev",
+    "start": "keystone-next start",
+    "build": "keystone-next build",
+    "postinstall": "keystone-next postinstall"
   },
   "eslintConfig": {
     "extends": "wesbos/typescript.js",
