@@ -7,7 +7,7 @@
   "scripts": {
     "seed-data": "keystone-next --seed-data",
     "dev": "keystone-next dev",
-    "heroku-postbuild": "yarn && keystone-next postinstall && keystone-next build",
+    "heroku-postbuild": "keystone-next build",
     "start": "keystone-next start"
   },
   "eslintConfig": {
