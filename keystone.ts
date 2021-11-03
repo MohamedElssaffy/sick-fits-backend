@@ -35,7 +35,9 @@ export default withAuth(
       cors: {
         origin: [process.env.FRONTEND_URL as string],
       },
+
       apolloConfig: {
+        introspection: true,
         debug: true,
         plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
       },
