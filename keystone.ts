@@ -1,6 +1,7 @@
 import 'dotenv/config';
 
 import { config } from '@keystone-next/keystone';
+import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 
 // Look in the schema file for how we define our lists, and how users interact with them through graphql or the Admin UI
 import { lists } from './schema';
@@ -30,7 +31,12 @@ export default withAuth(
         }
       },
     },
-
+    graphql: {
+      apolloConfig: {
+        debug: true,
+        plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+      },
+    },
     extendGraphqlSchema,
     ui: {
       // For our starter, we check that someone has session data before letting them see the Admin UI.
