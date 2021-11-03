@@ -1,56 +1,29 @@
 import 'dotenv/config';
-import { config, createSchema } from '@keystone-next/keystone/schema';
-import { createAuth } from '@keystone-next/auth';
-import {
-  withItemData,
-  statelessSessions,
-} from '@keystone-next/keystone/session';
 
-import { User } from './schemas/User';
-import { Role } from './schemas/Role';
-import { Product } from './schemas/Product';
-import { CartItem } from './schemas/CartItem';
-import { Order } from './schemas/Order';
-import { OrderItem } from './schemas/OrderItem';
-import { ProductImage } from './schemas/ProductImage';
-import { insertSeedData } from './seed-data/index';
-import { sendResetPasswordToken } from './lib/mail';
+import { config } from '@keystone-next/keystone';
+
+// Look in the schema file for how we define our lists, and how users interact with them through graphql or the Admin UI
+import { lists } from './schema';
+
+// Keystone auth is configured separately - check out the basic auth setup we are importing from our auth file.
+import { withAuth, session } from './auth';
+import { insertSeedData } from './seed-data';
 import { extendGraphqlSchema } from './mutations/Index';
-import { permissionsList } from './schemas/fields';
-
-const dataBaseUrl = process.env.DATABASE_URL;
-
-const sessionConfig = {
-  maxAge: 60 * 60 * 24 * 30,
-  secret: process.env.COOKIE_SECRET,
-};
-
-const { withAuth } = createAuth({
-  listKey: 'User',
-  identityField: 'email',
-  secretField: 'password',
-  initFirstItem: {
-    fields: ['name', 'email', 'password'],
-  },
-
-  passwordResetLink: {
-    async sendToken({ identity, token }) {
-      await sendResetPasswordToken(identity, token);
-    },
-  },
-});
 
 export default withAuth(
   config({
     server: {
       cors: {
-        origin: [process.env.FRONTEND_URL],
+        origin: [process.env.FRONTEND_URL as string],
         credentials: true,
       },
     },
     db: {
-      adapter: 'mongoose',
-      url: dataBaseUrl,
+      useMigrations: process.env.NODE_ENV === 'development',
+
+      provider: 'postgresql',
+      url: process.env.DB_URL as string,
+      idField: { kind: 'uuid' },
       async onConnect(keystone) {
         if (process.argv.includes('--seed-data')) {
           await insertSeedData(keystone);
@@ -58,22 +31,12 @@ export default withAuth(
       },
     },
 
-    lists: createSchema({
-      User,
-      Role,
-      Product,
-      ProductImage,
-      CartItem,
-      Order,
-      OrderItem,
-    }),
     extendGraphqlSchema,
     ui: {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      isAccessAllowed: ({ session }) => !!session?.data,
+      // For our starter, we check that someone has session data before letting them see the Admin UI.
+      isAccessAllowed: (context) => !!context.session?.data,
     },
-    session: withItemData(statelessSessions(sessionConfig), {
-      User: `id name role {${permissionsList.join(' ')}}`,
-    }),
+    lists,
+    session,
   })
 );

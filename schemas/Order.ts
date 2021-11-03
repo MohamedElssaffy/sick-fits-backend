@@ -1,13 +1,17 @@
-import { integer, relationship, text } from '@keystone-next/fields';
-import { list } from '@keystone-next/keystone/schema';
+import { integer, relationship, text } from '@keystone-next//keystone/fields';
+import { list } from '@keystone-next/keystone';
 import { isAdmin, isSignIn, rules } from '../access';
 
 export const Order = list({
   access: {
-    create: isSignIn,
-    read: rules.canOrder,
-    update: () => false,
-    delete: isAdmin,
+    operation: {
+      create: isSignIn,
+    },
+    filter: {
+      query: rules.canOrder,
+      update: () => false,
+      delete: isAdmin,
+    },
   },
   fields: {
     total: integer(),

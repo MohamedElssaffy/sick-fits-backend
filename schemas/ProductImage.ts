@@ -1,21 +1,25 @@
-import { list } from '@keystone-next/keystone/schema';
+import { list } from '@keystone-next/keystone';
 import { cloudinaryImage } from '@keystone-next/cloudinary';
-import { relationship, text } from '@keystone-next/fields';
+import { relationship, text } from '@keystone-next/keystone/fields';
 import { isSignIn, rules } from '../access';
 
 export const cloudinary = {
-  cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-  apiKey: process.env.CLOUDINARY_KEY,
-  apiSecret: process.env.CLOUDINARY_SECRET,
+  cloudName: process.env.CLOUDINARY_CLOUD_NAME as string,
+  apiKey: process.env.CLOUDINARY_KEY as string,
+  apiSecret: process.env.CLOUDINARY_SECRET as string,
   folder: 'sickFits',
 };
 
 export const ProductImage = list({
   access: {
-    create: isSignIn,
-    read: () => true,
-    update: rules.canManageProducts,
-    delete: rules.canManageProducts,
+    operation: {
+      create: isSignIn,
+    },
+    filter: {
+      update: rules.canManageProducts,
+      delete: rules.canManageProducts,
+      query: () => true,
+    },
   },
   fields: {
     image: cloudinaryImage({

@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { KeystoneContext } from '@keystone-next/types';
-import {
-  CartItemCreateInput,
-  OrderCreateInput,
-  UserCreateInput,
-} from '../.keystone/schema-types';
+import { KeystoneContext } from '@keystone-next/keystone/types';
+import { CartItem } from '../types';
 import stripeConfig from '../lib/stripe';
 import { Session } from '../types';
 
@@ -14,15 +10,15 @@ export default async function checkout(
   _: unknown,
   { token }: { token: string },
   context: KeystoneContext
-): Promise<OrderCreateInput> {
+): Promise<any> {
   const session = context.session as Session;
   if (!session.itemId) {
     throw new Error('You must sign in to apply this action');
   }
 
-  const user = await context.lists.User.findOne({
+  const user = await context.query.User.findOne({
     where: { id: session.itemId },
-    resolveFields: `
+    query: `
 		id
 		name
 		email
@@ -46,12 +42,10 @@ export default async function checkout(
 	`,
   });
 
-  const cartItems = user.cart.filter(
-    (item: CartItemCreateInput) => item.product
-  );
+  const cartItems = user.cart.filter((item: CartItem) => item.product);
 
   const totalAmount = cartItems.reduce(
-    (acc: number, currItem: CartItemCreateInput) =>
+    (acc: number, currItem: CartItem) =>
       acc + currItem.quantity * currItem.product.price,
     0
   );
@@ -68,32 +62,32 @@ export default async function checkout(
       throw new Error(e.message);
     });
 
-  const orderItems = cartItems.map((item) => ({
-    name: item.product.name,
-    description: item.product.description,
-    price: item.product.price,
-    quantity: item.quantity,
-    photo: { connect: { id: item.product.photo.id } },
-  }));
+  const orderItems = cartItems.map(
+    (item: {
+      product: { name: any; description: any; price: any; photo: { id: any } };
+      quantity: any;
+    }) => ({
+      name: item.product.name,
+      description: item.product.description,
+      price: item.product.price,
+      quantity: item.quantity,
+      photo: { connect: { id: item.product.photo.id } },
+    })
+  );
 
-  const order = await context.lists.Order.createOne({
+  const order = await context.db.Order.createOne({
     data: {
       total: charge.amount,
       charge: charge.id,
       user: { connect: { id: session.itemId } },
       items: { create: orderItems },
     },
-    resolveFields: `
-      id
-      total
-      charge
-    `,
   });
 
-  const cartItemsIds = user.cart.map((item) => item.id);
+  const cartItemsIds = user.cart.map((item: { id: any }) => ({ id: item.id }));
 
-  await context.lists.CartItem.deleteMany({
-    ids: cartItemsIds,
+  await context.db.CartItem.deleteMany({
+    where: [...cartItemsIds],
   });
   return order;
 }

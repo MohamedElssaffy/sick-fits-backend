@@ -21,7 +21,7 @@ export const rules = {
       return true;
     }
 
-    return { id: session.itemId };
+    return { id: { equals: session.itemId } };
   },
   canManageProducts({ session }: ListAccessArgs) {
     if (!session) return false;
@@ -30,7 +30,7 @@ export const rules = {
       return true;
     }
 
-    return { user: { id: session.itemId } };
+    return { user: { id: { equals: session.itemId } } };
   },
   canOrder({ session }: ListAccessArgs) {
     if (!session) return false;
@@ -39,7 +39,7 @@ export const rules = {
       return true;
     }
 
-    return { user: { id: session.itemId } };
+    return { user: { id: { equals: session.itemId } } };
   },
   canManageOrderItem({ session }: ListAccessArgs) {
     if (!session) return false;
@@ -48,7 +48,7 @@ export const rules = {
       return true;
     }
 
-    return { order: { user: { id: session.itemId } } };
+    return { order: { user: { id: { equals: session.itemId } } } };
   },
   canReadProducts({ session }: ListAccessArgs) {
     if (!session) return { status: 'AVAILABLE' };
@@ -56,6 +56,11 @@ export const rules = {
     if (permissions.canManageProducts({ session })) {
       return true;
     }
-    return { OR: [{ status: 'AVAILABLE' }, { user: { id: session.itemId } }] };
+    return {
+      OR: [
+        { status: { equals: 'AVAILABLE' } },
+        { user: { id: { equals: session.itemId } } },
+      ],
+    };
   },
 };

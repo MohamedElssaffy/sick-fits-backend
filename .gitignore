@@ -1,12 +1,5 @@
-node_modules/
-.DS_Store
+node_modules
+.keystone/admin
+keystone.db
 *.log
-haters/
-.next/
-.build/
-layout.md
-variables.env
-*.env
-.keystone
-.vscode
-.env.*
+.env

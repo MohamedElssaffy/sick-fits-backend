@@ -1,16 +1,25 @@
-import { integer, relationship, select, text } from '@keystone-next/fields';
-import { list } from '@keystone-next/keystone/schema';
+import {
+  integer,
+  relationship,
+  select,
+  text,
+} from '@keystone-next/keystone/fields';
+import { list } from '@keystone-next/keystone';
 import { isSignIn, rules } from '../access';
 
 export const Product = list({
   access: {
-    create: isSignIn,
-    read: rules.canReadProducts,
-    update: rules.canManageProducts,
-    delete: rules.canManageProducts,
+    operation: {
+      create: isSignIn,
+    },
+    filter: {
+      update: rules.canManageProducts,
+      delete: rules.canManageProducts,
+      query: rules.canReadProducts,
+    },
   },
   fields: {
-    name: text({ isRequired: true }),
+    name: text({ validation: { isRequired: true } }),
     description: text({ ui: { displayMode: 'textarea' } }),
     photo: relationship({
       ref: 'ProductImage.product',
@@ -37,9 +46,14 @@ export const Product = list({
     price: integer(),
     user: relationship({
       ref: 'User.products',
-      defaultValue: ({ context }) => ({
-        connect: { id: context.session.itemId },
-      }),
+      hooks: {
+        beforeOperation: ({ context, operation, inputData }) => {
+          const userId = context.session.itemId;
+          if (operation === 'create' || operation === 'update') {
+            inputData = userId;
+          }
+        },
+      },
     }),
   },
 });
