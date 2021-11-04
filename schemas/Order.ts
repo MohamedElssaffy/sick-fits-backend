@@ -16,7 +16,19 @@ export const Order = list({
   fields: {
     total: integer(),
     items: relationship({ ref: 'OrderItem.order', many: true }),
-    user: relationship({ ref: 'User.orders' }),
+    user: relationship({
+      ref: 'User.orders',
+      hooks: {
+        resolveInput: ({ context, resolvedData, operation }) => {
+          const id = context.session?.itemId;
+
+          if (operation === 'create') {
+            resolvedData.user = { connect: { id } };
+          }
+          return resolvedData.user;
+        },
+      },
+    }),
     charge: text(),
   },
   ui: {

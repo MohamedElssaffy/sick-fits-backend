@@ -21,6 +21,18 @@ export const CartItem = list({
   fields: {
     quantity: integer({ defaultValue: 1, validation: { isRequired: true } }),
     product: relationship({ ref: 'Product' }),
-    user: relationship({ ref: 'User.cart' }),
+    user: relationship({
+      ref: 'User.cart',
+      hooks: {
+        resolveInput: ({ context, resolvedData, operation }) => {
+          const id = context.session?.itemId;
+
+          if (operation === 'create') {
+            resolvedData.user = { connect: { id } };
+          }
+          return resolvedData.user;
+        },
+      },
+    }),
   },
 });

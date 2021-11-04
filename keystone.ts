@@ -31,14 +31,21 @@ export default withAuth(
         }
       },
     },
+
     graphql: {
       cors: {
-        origin: [process.env.FRONTEND_URL as string],
+        origin: process.env.FRONTEND_URL,
+        credentials: true,
       },
 
       apolloConfig: {
-        introspection: true,
-        debug: true,
+        // introspection: true,
+        // parseOptions: {
+        //   noLocation: true,
+        //   allowLegacySDLImplementsInterfaces: true,
+        //   experimentalFragmentVariables: true,
+        // },
+        // debug: true,
         plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
       },
     },

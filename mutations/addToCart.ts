@@ -14,8 +14,8 @@ export default async function addToCart(
 
   const allCartItems = await context.query.CartItem.findMany({
     where: {
-      user: { id: session.itemId },
-      product: { id: productId },
+      user: { id: { equals: session.itemId } },
+      product: { id: { equals: productId } },
     },
     query: 'id, quantity',
   });
