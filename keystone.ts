@@ -34,7 +34,7 @@ export default withAuth(
 
     graphql: {
       cors: {
-        origin: process.env.FRONTEND_URL,
+        origin: [process.env.FRONTEND_URL as string],
         credentials: true,
       },
 
