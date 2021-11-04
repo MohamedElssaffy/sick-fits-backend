@@ -13,7 +13,13 @@ import { extendGraphqlSchema } from './mutations/Index';
 
 export default withAuth(
   config({
-    server: {},
+    server: {
+      cors: {
+        origin: [process.env.FRONTEND_URL as string],
+
+        credentials: true,
+      },
+    },
     db: {
       useMigrations: process.env.NODE_ENV === 'development',
 
@@ -29,17 +35,10 @@ export default withAuth(
 
     graphql: {
       cors: {
-        origin: [process.env.FRONTEND_URL as string],
+        origin: false,
         credentials: true,
       },
       apolloConfig: {
-        // introspection: true,
-        // parseOptions: {
-        //   noLocation: true,
-        //   allowLegacySDLImplementsInterfaces: true,
-        //   experimentalFragmentVariables: true,
-        // },
-        // debug: true,
         plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
       },
     },
