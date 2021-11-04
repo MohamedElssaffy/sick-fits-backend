@@ -13,12 +13,7 @@ import { extendGraphqlSchema } from './mutations/Index';
 
 export default withAuth(
   config({
-    server: {
-      cors: {
-        origin: [process.env.FRONTEND_URL as string],
-        credentials: true,
-      },
-    },
+    server: {},
     db: {
       useMigrations: process.env.NODE_ENV === 'development',
 
@@ -37,7 +32,6 @@ export default withAuth(
         origin: [process.env.FRONTEND_URL as string],
         credentials: true,
       },
-
       apolloConfig: {
         // introspection: true,
         // parseOptions: {
