@@ -1,5 +1,3 @@
-
-
 import { createAuth } from '@keystone-next/auth';
 
 import { statelessSessions } from '@keystone-next/keystone/session';
@@ -8,7 +6,6 @@ import { sendResetPasswordToken } from './lib/mail';
 import { permissionsList } from './schemas/fields';
 
 let sessionSecret = process.env.COOKIE_SECRET;
-
 
 if (!sessionSecret) {
   if (process.env.NODE_ENV === 'production') {
@@ -19,7 +16,6 @@ if (!sessionSecret) {
     sessionSecret = '-- DEV COOKIE SECRET; CHANGE ME --';
   }
 }
-
 
 const { withAuth } = createAuth({
   listKey: 'User',
@@ -42,6 +38,7 @@ let sessionMaxAge = 60 * 60 * 24 * 30;
 const session = statelessSessions({
   maxAge: sessionMaxAge,
   secret: sessionSecret!,
+  sameSite: false,
 });
 
 export { withAuth, session };
