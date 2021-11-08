@@ -71,7 +71,7 @@ export default async function checkout(
       description: item.product.description,
       price: item.product.price,
       quantity: item.quantity,
-      photo: { connect: { id: item.product.photo.id } },
+      photo: { connect: { id: item.product?.photo?.id } },
     })
   );
 
