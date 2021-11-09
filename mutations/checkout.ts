@@ -66,13 +66,18 @@ export default async function checkout(
     (item: {
       product: { name: any; description: any; price: any; photo: { id: any } };
       quantity: any;
-    }) => ({
-      name: item.product.name,
-      description: item.product.description,
-      price: item.product.price,
-      quantity: item.quantity,
-      photo: { connect: { id: item.product?.photo?.id } },
-    })
+    }) => {
+      const photo = item.product?.photo?.id
+        ? { connect: { id: item.product?.photo?.id } }
+        : null;
+      return {
+        name: item.product.name,
+        description: item.product.description,
+        price: item.product.price,
+        quantity: item.quantity,
+        photo,
+      };
+    }
   );
 
   const order = await context.db.Order.createOne({

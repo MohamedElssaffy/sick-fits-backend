@@ -18,6 +18,16 @@ export const Product = list({
       query: rules.canReadProducts,
     },
   },
+  hooks: {
+    afterOperation: async ({ context, operation, originalItem }) => {
+      if (operation === 'delete') {
+        const photo = originalItem.photoId;
+        if (photo) {
+          await context.db.ProductImage.deleteOne({ where: { id: photo } });
+        }
+      }
+    },
+  },
   fields: {
     name: text({ validation: { isRequired: true } }),
     description: text({ ui: { displayMode: 'textarea' } }),
